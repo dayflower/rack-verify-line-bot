@@ -43,10 +43,6 @@ module Rack
             return false unless env['PATH_INFO'] == @options[:path]
           end
 
-          if @options[:loose]
-            return false unless env[SIGNATURE_HEADER]
-          end
-
           return true
         end
 

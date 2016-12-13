@@ -21,8 +21,7 @@ Or install it yourself as:
     require 'rack/verify/line/bot'
 
     use Rack::Verify::Line::Bot :secret => '<secret>',  # mandatory
-                                :path   => '/hook',     # path of webhook URI
-                                :loose  => true         # default false
+                                :path   => '/hook'      # path of webhook URI
 
 ## Development
 
