@@ -9,10 +9,13 @@ module Rack
         def initialize(app, options = {})
           @app = app
           @options = options
+
           @secret = @options[:secret]
           unless @secret
             raise 'missing secret parameter for ' + self.class.name
           end
+
+          @buffer_size = @options[:buffer_size] || 65536
         end
 
         def call(env)
@@ -50,9 +53,9 @@ module Rack
           given_sig = env[SIGNATURE_HEADER]
           return false unless given_sig
 
-          body = try_read(env['rack.input'])
-          hash = OpenSSL::HMAC::digest(OpenSSL::Digest::SHA256.new, @secret, body)
-          sig = Base64.strict_encode64(hash)
+          hmac = OpenSSL::HMAC.new(@secret, OpenSSL::Digest::SHA256.new)
+          update_hmac(hmac, env['rack.input'])
+          sig = Base64.strict_encode64(hmac.digest)
 
           secure_compare(given_sig, sig)
         end
@@ -69,12 +72,19 @@ module Rack
           res == 0
         end
 
-        def try_read(body)
-          if body
-            body.rewind
-            b = body.read
-            body.rewind
-            b
+        def update_hmac(hmac, handle)
+          return unless handle
+
+          handle.rewind
+          begin
+            buffer = ''
+            while handle.read(@buffer_size, buffer)
+              hmac.update(buffer)
+            end
+
+            hmac
+          ensure
+            handle.rewind
           end
         end
       end
