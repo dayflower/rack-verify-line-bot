@@ -10,8 +10,8 @@ Rack middleware which verifies signature of LINE Bot's webhook requests to ensur
 # config.ru
 require 'rack/verify/line/bot'
 
-use Rack::Verify::Line::Bot :secret => ENV['SECRET'],   # channel secret (mandatory)
-                            :path   => '/hook'          # path of webhook URI
+use Rack::Verify::Line::Bot, :secret => ENV['SECRET'],  # channel secret (mandatory)
+                             :path   => '/hook'         # path of webhook URI
 ```
 
 ### Options
